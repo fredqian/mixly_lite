@@ -78,11 +78,14 @@
     <link rel="stylesheet" type="text/css" href="css/ACEfont.css" />
     <link rel="stylesheet" type="text/css" href="css/fontello.css" />
     <link rel="stylesheet" type="text/css" href="css/picnic.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/editor.css" />
     <!-- upload -->
     <script type="text/javascript" src="dap.umd.js"></script>
 </head>
 
 <body onload="init()">
+
+    <!-- <div id="aceTheme" style="display:none;" value="ace/theme/monokai"></div> -->
     <nav class="">
         <a href="/" class="brand"><span>Mixly Lite</span></a>
         <input id="bmenu" type="checkbox" class="show">
@@ -94,29 +97,58 @@
             </span>
             <span style="vertical-align: center;text-align:center;" id="tab_arduino" class="taboff"
                 onclick="tabClick('arduino')">
-                <span class="warning button icon-code" id="span_arduino">Code</span>
+                <span class="warning button icon-code" id="span_arduino"></span>
             </span>
             <span style="vertical-align: center;text-align:center;display:none;" id="tab_xml" class="taboff"
-                onclick="tabClick('xml')">XML</span>
+                onclick="tabClick('xml')"></span>
             <select id="languageMenu" style="display:none;"></select>
-            <span onclick="Blockly.mainWorkspace.undo(0);" class="pseudo button icon-ccw" name="undo"
-                title="undo(ctrl+z)">撤销</span>
-            <span onclick="Blockly.mainWorkspace.undo(1);" class="pseudo button icon-cw" name="redo"
-                title="redo(ctrl+y)">重复</span>
-            <span id="open_btn" class="pseudo button icon-folder-open" onclick="mixlyjs.loadLocalFile()">打开</span>
-            <span id="save_xml_btn" class="pseudo button icon-floppy" onclick="save()">保存XML</span>
-            <span id="save_py_btn" class="pseudo button icon-code" onclick="mixlyjs.saveInoFileAs()">保存PY</span>
-            <span id="save_py_btn" class="pseudo button icon-download"
-                onclick="mixlyjs.compileMicrobitPy()">下载HEX</span>
-            <span id="connect_btn" class="pseudo button icon-link">连接</span>
-            <span id="upload_btn" class="button icon-upload">上传</span>
-            <!-- <a href="/documentation" class="button icon-file-code">Documentation</a> -->
+            <span onclick="Blockly.mainWorkspace.undo(0);" class="pseudo button icon-ccw" name="undo" id="undo_btn"
+                title="undo(ctrl+z)"></span>
+            <span onclick="Blockly.mainWorkspace.undo(1);" class="pseudo button icon-cw" name="redo" id="redo_btn"
+                title="redo(ctrl+y)"></span>
+            <span id="open_btn" class="pseudo button icon-folder-open" onclick="mixlyjs.loadLocalFile()"></span>
+            <!-- <label for="modal_1" id="save_btn" class="pseudo button icon-floppy"></label> -->
+            <span id="save_xml_btn" class="pseudo button icon-floppy" onclick="save()"></span>
+            <span id="save_py_btn" class="pseudo button icon-code" onclick="mixlyjs.saveInoFileAs()"></span>
+            <span id="save_hex_btn" class="pseudo button icon-download" onclick="mixlyjs.compileMicrobitPy()"></span>
+            <span id="connect_btn" class="pseudo button icon-link"></span>
+            <span id="upload_btn" class="success button icon-upload"></span>
             <script style="display:none;">
                 document.getElementById('span_blocks').textContent = MSG['tab_blocks'];
                 document.getElementById('span_arduino').textContent = MSG['tab_arduino'];
+                document.getElementById('undo_btn').textContent = MSG['undo'];
+                document.getElementById('redo_btn').textContent = MSG['redo'];
+                document.getElementById('open_btn').textContent = MSG['open'];
+                document.getElementById('save_xml_btn').textContent = MSG['save_blocks'];
+                document.getElementById('save_py_btn').textContent = MSG['save_py'];
+                document.getElementById('save_hex_btn').textContent = MSG['save_hex'];
+                document.getElementById('connect_btn').textContent = MSG['connect'];
+                document.getElementById('upload_btn').textContent = MSG['upload'];
             </script>
         </div>
     </nav>
+    <!-- <div class="modal">
+        <input id="modal_1" type="checkbox" />
+        <label for="modal_1" class="overlay"></label>
+        <article class="SelectModel__container">
+            <header class="SelectModal__header">
+                <h3>保存</h3><a class="SelectModal__close close"
+                    onclick="this.setState({ modal: this.state.prevModal, prevModal: null });">×</a>
+            </header>
+            <section class="SelectModel__content">
+                <div class="SelectModal__grid">
+                    <div class="SelectModal__cell SelectModal__cell--text"><span>保存XML</span></div>
+                    <div class="SelectModal__cell SelectModal__cell--action"><button>确认</button></div>
+                    <div class="SelectModal__cell SelectModal__cell--text"><span>保存PY</span></div>
+                    <div class="SelectModal__cell SelectModal__cell--action"><button>确认</button></div>
+                    <div class="SelectModal__cell SelectModal__cell--text"><span>保存HEX</span></div>
+                    <div class="SelectModal__cell SelectModal__cell--action"><button>确认</button></div>
+                </div>
+            </section>
+            <footer class="SelectModal__buttons"><button class="error"
+                    style="float: right; margin-left: 8px;">关闭</button></footer>
+        </article>
+    </div> -->
     <table width="100%" id="table_whole">
         <tr width="0%">
             <td colspan=3>
