@@ -268,6 +268,7 @@ var GLOBAL_VALUE;
  * Runs the given python code, resetting the console and Trace Table.
  */
 PyEngine.prototype.run = function() {
+    //alert(window.actionArrayRecord)
     document.getElementById("matplot_img").src=""
     document.getElementById("output_img").style.height='100%'
     document.getElementById("mat_div").style.height='0%'
@@ -313,8 +314,13 @@ PyEngine.prototype.run = function() {
     }else{
         code = Blockly.Python.workspaceToCode(Blockly.mainWorkspace) || '';//code
     }
-
+    
+    //alert(JSON.stringify(window.actionArrayRecord))
     var pack_num = 0;
+    if((code.indexOf("import js")!=-1)||(code.indexOf("from js import")!=-1)||(code.indexOf("import pyodide")!=-1)||(code.indexOf("from pyodide import")!=-1)){
+        pack_num = 1
+    }
+    
     var pack_list = ["numpy","pandas","scikit-learn","matplotlib"];
     var code_pack_list = [];
     for (var i = 0; i < pack_list.length; i++) {
@@ -369,34 +375,82 @@ PyEngine.prototype.run = function() {
     );
     }
     else{        
-        var reg1=/print\(.+\)\n/g
-        if (code.search(reg1)!=-1){
-        var print_code=code.match(reg1).toString()  
-        print_code=print_code.slice(6,-2)+'\n' 
-        code=code.replace(reg1,print_code)
+        // var reg1=/print\(.+\)\n/g
+        // if (code.search(reg1)!=-1){
+        // var print_code=code.match(reg1).toString()  
+        // print_code=print_code.slice(6,-2)+'\n' 
+        // code=code.replace(reg1,print_code)
+        // }
+        layui.use('layer', function(){
+            var layer = layui.layer;
+            layer.open({
+                type: 1,
+                title: '加载中',
+                content: $('#webusb-flashing'),
+                closeBtn: 0
+              });
+          }); 
+
+        var reg1=/print\(.+\)/
+        if(code.search(reg1)!=-1){
+            code = 'from js import document\n'+ code
+        }
+        while(code.search(reg1)!=-1){
+            var print_code=code.match(reg1).toString()
+            print_code=print_code.slice(6,-1)
+            if(print_code.search(/,end.=/g)!=-1){
+                var content = print_code.slice(0,print_code.search(/,end.=/g))
+                print_code = print_code.slice(print_code.search(/,end.=/g),-1)
+                print_code=print_code.replace(/,end.=/g,'')
+                print_code = print_code.substring(1)
+                code=code.replace(reg1,'document.getElementById("side_code").innerText = document.getElementById("side_code").innerHTML.replace("<br>","\\n") + str('+content+') +"' + print_code +'"')
+        }
+        else{
+            code=code.replace(reg1,'document.getElementById("side_code").innerText = document.getElementById("side_code").innerHTML.replace("<br>","\\n") + str('+print_code+') + "\\n"')
+        }
+           
         }
         languagePluginLoader.then(() => {
         pyodide.loadPackage(code_pack_list).then(() => {
         if (code.indexOf("matplotlib.pyplot.show()") != -1){
         code+=`\nimport io, base64\nbuf = io.BytesIO()\nmatplotlib.pyplot.savefig(buf, format='png')\nmatplotlib.pyplot.clf()\nbuf.seek(0)\nimg_str = 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8')\n`    
         
-        var code_result = pyodide.runPython(code);
+        //alert(window.location.href)
+        layer.closeAll('page');
+        try{
+        pyodide.runPython(code);}
+        catch(err){document.getElementById("side_code").innerHTML=err}
         document.getElementById("mat_div").style.height='100%'
         document.getElementById("output_img").style.height='0%'
         document.getElementById("matplot_img").src = pyodide.globals.img_str;
 
+
+        if (code.indexOf("matplotlib.pyplot.savefig('1.png')") != -1){
+         const a = document.createElement('a')
+         a.href = pyodide.globals.img_str
+         a.setAttribute('download', 'chart-download')
+         a.click()
+
+     }
+     
         
     }else{
-        var code_result = pyodide.runPython(code);
+        layer.closeAll('page');
+        try{
+        pyodide.runPython(code);}
+        catch(err){document.getElementById("side_code").innerHTML=err}
+        
+        //var code_result = pyodide.runPython(code);
     }
-        if(code_result!=undefined){
-        document.getElementById("side_code").innerText = code_result;
-        }
-        $("#loading").css('display', "none");
+        //if(code_result!=undefined){
+        //document.getElementById("side_code").innerText = code_result;
+        //}
+        //$("#loading").css('display', "none");
 
           
 
       });});
+
     }
 }
 
